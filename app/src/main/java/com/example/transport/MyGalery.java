@@ -183,6 +183,7 @@ public class MyGalery extends IntegrationAppCompatActivity implements SwipeRefre
     String statusSettings;
     Bitmap bitmap;
     String curentUnixTime;
+    Integer pay_type;
 
     public static int white = 0xFFFFFFFF;
     public static int black = 0xFF000000;
@@ -326,13 +327,15 @@ public class MyGalery extends IntegrationAppCompatActivity implements SwipeRefre
                     progressBar.setVisibility(ProgressBar.VISIBLE);
                     Log.d(LOG_TAG, priceCost + " price cost");
                     id_rout_btn = "1";
+                    pay_type = 0;
                     coast_rout = priceCost;
 
                 //  openReceiptAndEmail(priceCost);
 
 
+                  openMyRecipt(priceCost,finalNameString + ("Полная"),nds,0,true,getUnixTime());
 
-                    openReceipt(priceCost , finalNameString + (" Полная"), nds, 0,true, getUnixTime());
+                //    openReceipt(priceCost , finalNameString + (" Полная"), nds, 0,true, getUnixTime());
                 //
                 }
 
@@ -359,9 +362,9 @@ public class MyGalery extends IntegrationAppCompatActivity implements SwipeRefre
                             DeviceServiceConnector.getPrinterService().printDocument(
                                     //В настоящий момент печать возможна только на ККМ, встроенной в смарт-терминал,
                                     //поэтому вместо номера устройства всегда следует передавать константу
-                                    ru.evotor.devices.commons.Constants.DEFAULT_DEVICE_INDEX,
-                                    new PrinterDocument(
-                                            new PrintableText("PRINTER INIT OK")));
+                                    ru.evotor.devices.commons.Constants.DEFAULT_DEVICE_INDEX,null);
+//                                    new PrinterDocument(
+//                                            new PrintableText("PRINTER INIT OK")));
                         } catch (DeviceServiceException e) {
                             e.printStackTrace();
                         }
@@ -390,9 +393,6 @@ public class MyGalery extends IntegrationAppCompatActivity implements SwipeRefre
 
 
 
-        mList.add(new PrintData(barType, printType, "hellow"));
-        mList.add(new PrintData(barType, printType, "Короче Макс очень сильно любит сосать члены!< Главный любитель членов ин зе ворлд"));
-        mList.add(new PrintData(barType, PrintData.PrintType.IMAGE, ""));
 
 
 
@@ -402,88 +402,31 @@ public class MyGalery extends IntegrationAppCompatActivity implements SwipeRefre
             public void onClick(View v) {
 
 
-        final List<IPrintable> pList = new ArrayList<>();
-                 for (PrintData item : mList) {
-        if (item.getPrintType().equals(PrintData.PrintType.TEXT)) {
-        //Печать текста
-        pList.add(new PrintableText(item.getData()));
-        } else if (item.getPrintType().equals(PrintData.PrintType.BARCODE)) {
-        //Печать штрихкода
-        //Штрихкод должен быть с верной контрольной суммой
-        pList.add(new PrintableBarcode(item.getData(), item.getBarType()));
-        } else if (item.getPrintType().equals(PrintData.PrintType.IMAGE)) {
-        //Печать картинки
-
-
-//            @SuppressLint("ResourceType") InputStream inputStream = getContext().getResources().openRawResource(R.drawable.icon_app);
-//            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-
-
-            try {
-
-                long unixTime = System.currentTimeMillis() / 1000L;
-                String strLong = Long.toString(unixTime);
-
-                bitmap = encodeAsBitmap("https://avto.infosaver.ru/showCheck/"+sharedPreferencesId.getString("device_id","")+"&"+getUnixTime());
-                pList.add(new PrintableImage(bitmap));
-
-            } catch (WriterException e) {
-                e.printStackTrace();
-            }
-
-            try {
-
-                File cachePath = new File(MyGalery.this.getCacheDir(), "images");
-                cachePath.mkdirs(); // don't forget to make the directory
-                FileOutputStream stream = new FileOutputStream(cachePath + "/qr.png"); // overwrites this image every time
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                stream.close();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-
-            }
-
-
-        }
-        }
-        new Thread() {
-@Override
-public void run() {
-        try {
-
-        DeviceServiceConnector.getPrinterService().printDocument(
-        //В настоящий момент печать возможна только на ККМ, встроенной в смарт-терминал,
-        //поэтому вместо номера устройства всегда следует передавать константу
-        ru.evotor.devices.commons.Constants.DEFAULT_DEVICE_INDEX,
-        new PrinterDocument(pList.toArray(new IPrintable[pList.size()])));
-        } catch (DeviceServiceException e) {
-        e.printStackTrace();
-        }
-
-        }
-        }.start();
 
 
 
 
-//                if (priceCost == null){
-//                    Toast toast = Toast.makeText(getApplicationContext(),
-//                            "Выберите начальную и конечную остановку",
-//                            Toast.LENGTH_LONG);
-//                    toast.setGravity(Gravity.CENTER, nds, 0);
-//                    toast.show();
-//
-//
-//
-//                }else {
-//                    progressBar.setVisibility(ProgressBar.VISIBLE);
-//                    id_rout_btn = "2";
-//                    coast_rout = privelagePrice;
-//
-//                    openReceipt(privelagePrice, finalNameString + (" Льготная"), nds, 0,true);
-//
-//                }
+
+                if (priceCost == null){
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            "Выберите начальную и конечную остановку",
+                            Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, nds, 0);
+                    toast.show();
+
+
+
+                }else {
+                    pay_type = 0;
+                    progressBar.setVisibility(ProgressBar.VISIBLE);
+                    id_rout_btn = "2";
+                    coast_rout = privelagePrice;
+
+
+                    openMyRecipt(privelagePrice,finalNameString + (" Льготная"),nds,0,true,getUnixTime());
+                    //openReceipt(privelagePrice, finalNameString + (" Льготная"), nds, 0,true);
+
+                }
 //
             }
         });
@@ -503,9 +446,13 @@ public void run() {
                 }else {
                     id_rout_btn = "3";
                     coast_rout = priceBag;
-
+                    pay_type = 0;
                     progressBar.setVisibility(ProgressBar.VISIBLE);
-                    openReceipt(priceBag, finalNameString + (" Багаж"), nds, 0,true,getUnixTime());
+
+
+                    openMyRecipt(priceBag,finalNameString + ("Багаж"),nds,0,true,getUnixTime());
+
+                   // openReceipt(priceBag, finalNameString + (" Багаж"), nds, 0,true,getUnixTime());
 
                     }
             }
@@ -535,6 +482,9 @@ public void run() {
                         Log.d(LOG_TAG, priceCost + " price cost");
                         id_rout_btn = "1";
                         coast_rout = priceCost;
+
+
+
                         openReceipts(priceCost , finalNameString + (" Полная"), nds, 1,true);
 
                     }else {
@@ -543,7 +493,13 @@ public void run() {
                         Log.d(LOG_TAG, priceCost + " price cost");
                         id_rout_btn = "1";
                         coast_rout = priceCost;
-                        openReceipt(priceCost , finalNameString + (" Полная"), nds, 1,true,getUnixTime());
+                        pay_type = 1;
+
+
+                        openMyRecipt(priceCost,finalNameString + ("Полная"),nds,1,true,getUnixTime());
+
+
+                     //   openReceipt(priceCost , finalNameString + (" Полная"), nds, 1,true,getUnixTime());
                         //
 
                     }
@@ -589,7 +545,12 @@ public void run() {
                         id_rout_btn = "2";
                         coast_rout = privelagePrice;
 
-                        openReceipt(privelagePrice, finalNameString + (" Льготная"), nds, 1,true,getUnixTime());
+                        pay_type = 1;
+
+
+                        openMyRecipt(privelagePrice,finalNameString + ("Льготная"),nds,1,true,getUnixTime());
+
+                    //    openReceipt(privelagePrice, finalNameString + (" Льготная"), nds, 1,true,getUnixTime());
 
                     }
 
@@ -628,10 +589,15 @@ public void run() {
 
                         id_rout_btn = "3";
                         coast_rout = priceBag;
+                        pay_type = 1;
 
                         progressBar.setVisibility(ProgressBar.VISIBLE);
 
-                        openReceipt(priceBag, finalNameString + (" Багаж"), nds, 1,true,getUnixTime());
+                      //  openReceipt(priceBag, finalNameString + (" Багаж"), nds, 1,true,getUnixTime());
+
+                        openMyRecipt(priceBag,finalNameString + ("Багаж"),nds,1,true,getUnixTime());
+
+
                     }
 
 
@@ -649,7 +615,7 @@ public void run() {
 
         timer = new Timer();
         mTimerTask = new MyTimerTask();
-        Integer t = 100000;
+        Integer t = 60000;
         timer.schedule(mTimerTask, t, t);
 
 
@@ -1041,7 +1007,9 @@ public void run() {
 
                                                 }else {
                                                     Float decimal = Float.parseFloat(str);
-                                                    openReceipt(decimal, mItems.get(position).getName(), mItems.get(position).getNds(), mItems.get(position).getType(),false,getUnixTime());
+                                                    openMyRecipt(decimal, mItems.get(position).getName(), mItems.get(position).getNds(), mItems.get(position).getType(),false,getUnixTime());
+
+                                                 //   openReceipt(decimal, mItems.get(position).getName(), mItems.get(position).getNds(), mItems.get(position).getType(),false,getUnixTime());
 
                                                 }
 
@@ -1078,7 +1046,10 @@ public void run() {
 
                      //   openReceipts();
 
-                        openReceipt(mItems.get(position).getSum(), mItems.get(position).getName(), mItems.get(position).getNds(), mItems.get(position).getType(),false,getUnixTime());
+                        openMyRecipt(mItems.get(position).getSum(), mItems.get(position).getName(), mItems.get(position).getNds(), mItems.get(position).getType(),false,getUnixTime());
+
+
+                      //  openReceipt(mItems.get(position).getSum(), mItems.get(position).getName(), mItems.get(position).getNds(), mItems.get(position).getType(),false,getUnixTime());
 
                     }
                 }else {
@@ -1237,7 +1208,7 @@ public void run() {
                     clientList.put("id_driver", id_driver);
                     clientList.put("id_button", mItems.get(indexButton).getId());
                     clientList.put("unix_time",curentUnixTime);
-                    clientList.put("qr_code",sharedPreferencesId.getString("device_id","")+"&"+curentUnixTime);
+                    clientList.put("qr_code",sharedPreferencesId.getString("device_id","")+"$"+curentUnixTime);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -1272,7 +1243,8 @@ public void run() {
                     clientList.put("cost_type", id_rout_btn);
                     clientList.put("cost", coast_rout);
                     clientList.put("unix_time",curentUnixTime);
-                    clientList.put("qr_code",sharedPreferencesId.getString("device_id","")+"&"+curentUnixTime);
+                    clientList.put("qr_code",sharedPreferencesId.getString("device_id","")+"$"+curentUnixTime);
+                    clientList.put("pay_type",pay_type);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -2045,6 +2017,104 @@ public void run() {
                 }
             }
         });
+    }
+
+
+    public void openMyRecipt(Float decimal, String name, Integer tax, Integer type, Boolean typeBufer, String unix){
+
+        curentUnixTime = unix;
+
+
+
+        if (type == 0){
+            mList.add(new PrintData(barType, printType, name));
+            mList.add(new PrintData(barType, printType, "ИТОГ        " + decimal));
+            mList.add(new PrintData(barType, printType, "наличными"));
+            mList.add(new PrintData(barType, PrintData.PrintType.IMAGE, ""));
+
+
+        }else {
+            mList.add(new PrintData(barType, printType, name));
+            mList.add(new PrintData(barType, printType, "ИТОГ        " + decimal));
+            mList.add(new PrintData(barType, printType, "безналичными"));
+            mList.add(new PrintData(barType, PrintData.PrintType.IMAGE, ""));
+
+
+        }
+
+
+
+        final List<IPrintable> pList = new ArrayList<>();
+        for (PrintData item : mList) {
+            if (item.getPrintType().equals(PrintData.PrintType.TEXT)) {
+                //Печать текста
+                pList.add(new PrintableText(item.getData()));
+            } else if (item.getPrintType().equals(PrintData.PrintType.BARCODE)) {
+                //Печать штрихкода
+                //Штрихкод должен быть с верной контрольной суммой
+                pList.add(new PrintableBarcode(item.getData(), item.getBarType()));
+            } else if (item.getPrintType().equals(PrintData.PrintType.IMAGE)) {
+                //Печать картинки
+
+
+//            @SuppressLint("ResourceType") InputStream inputStream = getContext().getResources().openRawResource(R.drawable.icon_app);
+//            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+
+                try {
+
+
+
+                    bitmap = encodeAsBitmap("https://avto.infosaver.ru/showCheck/"+sharedPreferencesId.getString("device_id","")+"$"+curentUnixTime+"/");
+                    pList.add(new PrintableImage(bitmap));
+
+                } catch (WriterException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+
+                    File cachePath = new File(MyGalery.this.getCacheDir(), "images");
+                    cachePath.mkdirs(); // don't forget to make the directory
+                    FileOutputStream stream = new FileOutputStream(cachePath + "/qr.png"); // overwrites this image every time
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    stream.close();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+
+                }
+
+
+            }
+        }
+
+        progressBar.setVisibility(ProgressBar.INVISIBLE);
+
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+
+                    bufer(typeBufer);
+
+                    DeviceServiceConnector.getPrinterService().printDocument(
+                            //В настоящий момент печать возможна только на ККМ, встроенной в смарт-терминал,
+                            //поэтому вместо номера устройства всегда следует передавать константу
+                            ru.evotor.devices.commons.Constants.DEFAULT_DEVICE_INDEX,
+                            new PrinterDocument(pList.toArray(new IPrintable[pList.size()])));
+                } catch (DeviceServiceException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }.start();
+
+
+        mList.clear();
+
+
     }
 
 

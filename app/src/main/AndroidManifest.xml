@@ -34,12 +34,12 @@
         <activity android:name=".MyGalery"
             android:label="@string/navname">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <!--<action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
                  <!--  -->
-                 <!--<action android:name="android.intent.action.MAIN" />-->
-                 <!--<category android:name="android.intent.category.EVOTOR" />-->
+                 <action android:name="android.intent.action.MAIN" />
+                 <category android:name="android.intent.category.EVOTOR" />
             </intent-filter>
         </activity>
         <activity
